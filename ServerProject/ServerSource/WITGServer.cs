@@ -17,6 +17,7 @@ namespace WITG
     public static class WITGServer
     {
         public class SlotData { public int Slot = 0; }
+        private static readonly Identifier MetadataKey = "witg_roster_data".ToIdentifier();
         private readonly static ConditionalWeakTable<CharacterCampaignData, SlotData> DataSlots = [];
         private readonly static Dictionary<Client, int> ClientActiveSlots = [];
 
@@ -28,6 +29,9 @@ namespace WITG
 
         public static int GetActiveSlot(Client client) =>
             ClientActiveSlots.TryGetValue(client, out int slot) ? slot : 0;
+
+        public static void ResetAllActiveSlots() =>
+            ClientActiveSlots.Clear();
 
         public static void Initialize()
         {
@@ -150,8 +154,36 @@ namespace WITG
             LuaCsLogger.LogMessage("[WITG] Server-side slot management initialized.");
         }
 
+        public static string SerializeAlts(IEnumerable<CharacterCampaignData> alts)
+        {
+            XElement root = new("WITG_Roster");
+            foreach (var alt in alts)
+            {
+                XElement altXml = alt.Save();
+                altXml.SetAttributeValue("witg_slot", GetSlot(alt));
+                root.Add(altXml);
+            }
+            return root.ToString(SaveOptions.DisableFormatting);
+        }
+
+        public static IEnumerable<CharacterCampaignData> DeserializeAlts(string data)
+        {
+            if (string.IsNullOrWhiteSpace(data)) yield break;
+            XElement root;
+            try { root = XElement.Parse(data); } catch { yield break; }
+
+            foreach (var el in root.Elements("CharacterCampaignData"))
+            {
+                var cd = new CharacterCampaignData(el);
+                SetSlot(cd, el.GetAttributeInt("witg_slot", 0));
+                yield return cd;
+            }
+        }
+
         public static void Dispose() => ClientActiveSlots.Clear();
     }
+
+    // MARK: Harmony Patches
 
     [HarmonyPatch(typeof(CharacterCampaignData))]
     public static class CharacterCampaignDataPatches
@@ -168,10 +200,10 @@ namespace WITG
 
         [HarmonyPatch(nameof(CharacterCampaignData.Save))]
         [HarmonyPostfix]
-        public static void SavePostfix(CharacterCampaignData __instance, ref XElement __result)
+        public static void SavePostfix(CharacterCampaignData __instance, XElement __result)
         {
             int slot = WITGServer.GetSlot(__instance);
-            if (slot > 0) __result.Add(new XAttribute("witg_slot", slot));
+            if (slot > 0) __result.SetAttributeValue("witg_slot", slot);
         }
 
         [HarmonyPatch(nameof(CharacterCampaignData.MatchesClient))]
@@ -179,11 +211,7 @@ namespace WITG
         public static void MatchesClientPostfix(CharacterCampaignData __instance, Client client, ref bool __result)
         {
             if (!__result || client == null) return;
-
-            if (WITGServer.GetSlot(__instance) != WITGServer.GetActiveSlot(client))
-            {
-                __result = false;
-            }
+            if (WITGServer.GetSlot(__instance) != WITGServer.GetActiveSlot(client)) __result = false;
         }
 
         [HarmonyPatch(nameof(CharacterCampaignData.IsDuplicate))]
@@ -191,6 +219,83 @@ namespace WITG
         public static void IsDuplicatePostfix(CharacterCampaignData __instance, CharacterCampaignData other, ref bool __result)
         {
             if (__result && WITGServer.GetSlot(__instance) != WITGServer.GetSlot(other)) __result = false;
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiPlayerCampaign))]
+    public static class MultiPlayerCampaignPatches
+    {
+        private static readonly Identifier MetadataKey = "witg_roster_data".ToIdentifier();
+        private static readonly List<CharacterCampaignData> ShieldedAlts = [];
+
+        [HarmonyPatch(nameof(MultiPlayerCampaign.Load))]
+        [HarmonyPostfix]
+        public static void LoadPostfix(MultiPlayerCampaign __instance)
+        {
+            if (__instance.CampaignMetadata == null) return;
+
+            string serializedData = __instance.CampaignMetadata.GetString(MetadataKey, "");
+            var restoredAlts = WITGServer.DeserializeAlts(serializedData).ToList();
+
+            foreach (var alt in restoredAlts)
+            {
+                if (!__instance.characterData.Any(c => c.AccountId == alt.AccountId && WITGServer.GetSlot(c) == WITGServer.GetSlot(alt)))
+                {
+                    __instance.characterData.Add(alt);
+                }
+            }
+#if DEBUG
+            if (restoredAlts.Count > 0)
+                LuaCsLogger.LogMessage($"[WITG] {restoredAlts.Count} identities in metadata.");
+#endif
+        }
+
+        [HarmonyPatch(nameof(MultiPlayerCampaign.Save))]
+        [HarmonyPrefix]
+        public static void SavePrefix(MultiPlayerCampaign __instance)
+        {
+            ShieldedAlts.Clear();
+            var allAlts = __instance.characterData.Where(cd => WITGServer.GetSlot(cd) > 0).ToList();
+
+            string data = WITGServer.SerializeAlts(allAlts);
+            __instance.CampaignMetadata.SetValue(MetadataKey, data);
+
+            foreach (var alt in allAlts)
+            {
+                ShieldedAlts.Add(alt);
+                __instance.characterData.Remove(alt);
+#if DEBUG
+                LuaCsLogger.LogMessage($"[WITG] Removed {alt.Name} from characterData.");
+#endif
+            }
+
+        }
+
+        [HarmonyPatch(nameof(MultiPlayerCampaign.Save))]
+        [HarmonyPostfix]
+        public static void SavePostfix(MultiPlayerCampaign __instance)
+        {
+            foreach (var alt in ShieldedAlts)
+            {
+                if (!__instance.characterData.Contains(alt))
+                {
+                    __instance.characterData.Add(alt);
+#if DEBUG
+                    LuaCsLogger.LogMessage($"[WITG] Added {alt.Name} back to characterData.");
+#endif
+                }
+            }
+            ShieldedAlts.Clear();
+        }
+
+        [HarmonyPatch(nameof(MultiPlayerCampaign.StartCampaignSetup))]
+        [HarmonyPostfix]
+        public static void StartCampaignSetupPostfix()
+        {
+#if DEBUG
+            LuaCsLogger.LogMessage("[WITG] New campaign session. Resetting active slots.");
+#endif
+            WITGServer.ResetAllActiveSlots();
         }
     }
 }

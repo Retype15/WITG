@@ -34,7 +34,7 @@ namespace WITG
         public static void Clear()
         {
             Cache.Clear();
-            ActiveSlot = -1;
+            ActiveSlot = 0;
         }
     }
 }

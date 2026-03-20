@@ -81,7 +81,7 @@ A: Yes. WITG is designed to work on multiplayer servers with character saving en
 
 A: Yes, as long as you are in a multiplayer campaign lobby and the game mode allows character saving. Just open the IDENTITIES tab and select the slot you want to use.
 
-## 📄 License
+## License
 
 This project is licensed under the **GNU GPLv3**. Please refer to the [`LICENCE`](./LICENCE) file for more details.
 

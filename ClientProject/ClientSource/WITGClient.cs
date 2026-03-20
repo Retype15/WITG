@@ -6,11 +6,11 @@
 #pragma warning disable IDE0079
 #pragma warning disable IDE0290
 
+using System.Reflection;
 using Barotrauma;
 using Barotrauma.Networking;
 using HarmonyLib;
-using System;
-using System.Reflection;
+using Microsoft.Xna.Framework;
 
 namespace WITG
 {
@@ -35,7 +35,8 @@ namespace WITG
                 if (hasChar)
                     GameMain.Client.CharacterInfo = CharacterInfo.ClientRead(CharacterPrefab.HumanSpeciesName.ToIdentifier(), msgIn);
 
-                CrossThread.RequestExecutionOnMainThread(() => {
+                CrossThread.RequestExecutionOnMainThread(() =>
+                {
                     GameMain.NetLobbyScreen?.Select();
                     var update = typeof(NetLobbyScreen).GetMethod("UpdatePlayerFrame", BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(CharacterInfo), typeof(bool)], null);
                     update?.Invoke(GameMain.NetLobbyScreen, [GameMain.Client.CharacterInfo, true]);
@@ -61,18 +62,15 @@ namespace WITG
             IdentityUI.Initialize(__instance);
             IdentityNetworking.RequestInfo();
         }
-    }
 
-    /*[HarmonyPatch(typeof(MultiPlayerCampaignSetupUI))]
-    public static class CampaignSetupPatches
-    {
-        [HarmonyPatch("LoadClicked")]
+        [HarmonyPatch(nameof(NetLobbyScreen.SelectMode))]
         [HarmonyPrefix]
-        public static bool OnLoadClicked(GUIButton button, object obj)
+        public static void SelectModePrefix()
         {
-            LuaCsLogger.LogMessage("[WITG] Intercepting Campaign Load. Resetting data.");
+#if DEBUG
+            LuaCsLogger.LogMessage("[WITG] Switching campaign/mode. Clearing local cache.", Color.Gold);
+#endif
             IdentityData.Clear();
-            return true;
         }
-    }*/
+    }
 }
