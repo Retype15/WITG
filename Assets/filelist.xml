@@ -1,3 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <contentpackage name="Who Invited These Guys?" modversion="0.1.0b" gameversion="1.11.5.0" corepackage="false" >
+    <Text file="%ModDir%/Localization/BrazilianPortuguese.xml" />
+    <Text file="%ModDir%/Localization/CastillianSpanish.xml" />
+    <Text file="%ModDir%/Localization/English.xml" />
+    <Text file="%ModDir%/Localization/French.xml" />
+    <Text file="%ModDir%/Localization/German.xml" />
+    <Text file="%ModDir%/Localization/Japanese.xml" />
+    <Text file="%ModDir%/Localization/Korean.xml" />
+    <Text file="%ModDir%/Localization/LatinamericanSpanish.xml" />
+    <Text file="%ModDir%/Localization/Polish.xml" />
+    <Text file="%ModDir%/Localization/Russian.xml" />
+    <Text file="%ModDir%/Localization/SimplifiedChinese.xml" />
+    <Text file="%ModDir%/Localization/TraditionalChinese.xml" />
+    <Text file="%ModDir%/Localization/Turkish.xml" />
 </contentpackage>

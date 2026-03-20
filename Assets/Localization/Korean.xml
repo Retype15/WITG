@@ -2,6 +2,7 @@
 <infotexts language="Korean" nowhitespace="false" translatedname="한국어">
 	<Override>
 		<witg.tab.identities>신원 목록</witg.tab.identities>
+		<witg.crewmanifest>승무원 명단</witg.crewmanifest>
 		<witg.error.primaryidnodelete>기본 신원은 삭제할 수 없습니다.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>신원 삭제</witg.deleteidentity>
 		<witg.confirmdeleteidentity>정말로 [name]을(를) 삭제하시겠습니까?</witg.confirmdeleteidentity>

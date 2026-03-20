@@ -2,6 +2,7 @@
 <infotexts language="Japanese" nowhitespace="false" translatedname="日本語">
 	<Override>
 		<witg.tab.identities>アイデンティティ</witg.tab.identities>
+		<witg.crewmanifest>乗組員名簿</witg.crewmanifest>
 		<witg.error.primaryidnodelete>プライマリ・アイデンティティは削除できません。</witg.error.primaryidnodelete>
 		<witg.deleteidentity>アイデンティティの削除</witg.deleteidentity>
 		<witg.confirmdeleteidentity>[name]を削除してもよろしいですか？</witg.confirmdeleteidentity>

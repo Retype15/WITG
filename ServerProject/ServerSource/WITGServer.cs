@@ -6,9 +6,6 @@
 #pragma warning disable IDE0079
 #pragma warning disable IDE0290
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using Barotrauma;
@@ -34,6 +31,8 @@ namespace WITG
 
         public static void Initialize()
         {
+            LuaCsLogger.LogMessage("[WITG] Initializing server-side slot management.");
+
             GameMain.LuaCs.Networking.Receive("WITG_ReqInfo", args =>
             {
                 var client = (Client)args[1];
@@ -49,12 +48,15 @@ namespace WITG
                     client.AccountId.TryUnwrap(out var clientId) &&
                     accId == clientId).ToList();
 
+                LuaCsLogger.LogMessage($"[WITG] Sending {allData.Count} slots to {client.Name}");
+
                 msgOut.WriteInt32(allData.Count);
                 foreach (var data in allData)
                 {
                     msgOut.WriteInt32(GetSlot(data));
                     msgOut.WriteString(data.Name ?? "Unknown");
-                    msgOut.WriteString(data.CharacterInfo?.Job?.Name.Value ?? "No Job");
+                    string jobName = data.CharacterInfo?.Job?.Name.Value ?? "No Job";
+                    msgOut.WriteString(jobName);
                 }
                 msgOut.WriteInt32(GetActiveSlot(client));
                 GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
@@ -144,6 +146,8 @@ namespace WITG
                     GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
                 }
             });
+
+            LuaCsLogger.LogMessage("[WITG] Server-side slot management initialized.");
         }
 
         public static void Dispose() => ClientActiveSlots.Clear();
@@ -174,8 +178,12 @@ namespace WITG
         [HarmonyPostfix]
         public static void MatchesClientPostfix(CharacterCampaignData __instance, Client client, ref bool __result)
         {
-            if (!__result) return;
-            if (WITGServer.GetSlot(__instance) != WITGServer.GetActiveSlot(client)) __result = false;
+            if (!__result || client == null) return;
+
+            if (WITGServer.GetSlot(__instance) != WITGServer.GetActiveSlot(client))
+            {
+                __result = false;
+            }
         }
 
         [HarmonyPatch(nameof(CharacterCampaignData.IsDuplicate))]
@@ -183,24 +191,6 @@ namespace WITG
         public static void IsDuplicatePostfix(CharacterCampaignData __instance, CharacterCampaignData other, ref bool __result)
         {
             if (__result && WITGServer.GetSlot(__instance) != WITGServer.GetSlot(other)) __result = false;
-        }
-
-        [HarmonyPatch(nameof(CharacterCampaignData.MatchesClient))]
-        public static class MatchesClientPatch
-        {
-            [HarmonyPostfix]
-            public static void Postfix(CharacterCampaignData __instance, Client client, ref bool __result)
-            {
-                if (!__result) return;
-
-                int savedSlot = WITGServer.GetSlot(__instance);
-                int activeSlot = WITGServer.GetActiveSlot(client);
-
-                if (savedSlot != activeSlot)
-                {
-                    __result = false;
-                }
-            }
         }
     }
 }

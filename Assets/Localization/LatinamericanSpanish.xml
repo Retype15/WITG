@@ -2,6 +2,7 @@
 <infotexts language="Latinamerican Spanish" nowhitespace="false" translatedname="Español Latinoamericano">
 	<Override>
 		<witg.tab.identities>IDENTIDADES</witg.tab.identities>
+		<witg.crewmanifest>MANIFIESTO DE LA TRIPULACIÓN</witg.crewmanifest>
 		<witg.error.primaryidnodelete>La identidad principal no puede eliminarse.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>ELIMINAR IDENTIDAD</witg.deleteidentity>
 		<witg.confirmdeleteidentity>¿Estás seguro de que quieres eliminar a [name]?</witg.confirmdeleteidentity>

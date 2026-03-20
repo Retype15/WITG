@@ -2,6 +2,7 @@
 <infotexts language="English" nowhitespace="false" translatedname="English">
 	<Override>
 		<witg.tab.identities>IDENTITIES</witg.tab.identities>
+		<witg.crewmanifest>CREW MANIFEST</witg.crewmanifest>
 		<witg.error.primaryidnodelete>The primary identity cannot be deleted.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>DELETE IDENTITY</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Are you sure you want to delete [name]?</witg.confirmdeleteidentity>

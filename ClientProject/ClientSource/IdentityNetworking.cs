@@ -30,6 +30,9 @@ namespace WITG
         {
             var msgIn = (IReadMessage)args[0];
             int count = msgIn.ReadInt32();
+            
+            LuaCsLogger.LogMessage($"[WITG] Received {count} characters from server.");
+
             var entries = new List<IdentityData.CharacterEntry>();
             for (int i = 0; i < count; i++)
             {

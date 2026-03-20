@@ -2,6 +2,7 @@
 <infotexts language="Polish" nowhitespace="false" translatedname="Polski">
 	<Override>
 		<witg.tab.identities>TOŻSAMOŚCI</witg.tab.identities>
+		<witg.crewmanifest>MANIFEST KADRY</witg.crewmanifest>
 		<witg.error.primaryidnodelete>Nie można usunąć tożsamości podstawowej.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>USUŃ TOŻSAMOŚĆ</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Czy na pewno chcesz usunąć [name]?</witg.confirmdeleteidentity>

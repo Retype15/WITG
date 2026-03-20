@@ -2,6 +2,7 @@
 <infotexts language="German" nowhitespace="false" translatedname="Deutsch">
 	<Override>
 		<witg.tab.identities>IDENTITÄTEN</witg.tab.identities>
+		<witg.crewmanifest>KAPITÄNSLOGBUCH</witg.crewmanifest>
 		<witg.error.primaryidnodelete>Die primäre Identität kann nicht gelöscht werden.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>IDENTITÄT LÖSCHEN</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Sind Sie sicher, dass Sie [name] löschen möchten?</witg.confirmdeleteidentity>

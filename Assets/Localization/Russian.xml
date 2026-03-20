@@ -2,6 +2,7 @@
 <infotexts language="Russian" nowhitespace="false" translatedname="Русский">
 	<Override>
 		<witg.tab.identities>ЛИЧНОСТИ</witg.tab.identities>
+		<witg.crewmanifest>ЛИЧНОСТИ</witg.crewmanifest>
 		<witg.error.primaryidnodelete>Основную личность нельзя удалить.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>УДАЛИТЬ ЛИЧНОСТЬ</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Вы уверены, что хотите удалить [name]?</witg.confirmdeleteidentity>

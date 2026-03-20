@@ -2,6 +2,7 @@
 <infotexts language="Brazilian Portuguese" nowhitespace="false" translatedname="Português brasileiro">
 	<Override>
 		<witg.tab.identities>IDENTIDADES</witg.tab.identities>
+		<witg.crewmanifest>MANIFESTO DA TRIPULAÇÃO</witg.crewmanifest>
 		<witg.error.primaryidnodelete>A identidade principal não pode ser excluída.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>EXCLUIR IDENTIDADE</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Tem certeza de que deseja excluir [name]?</witg.confirmdeleteidentity>

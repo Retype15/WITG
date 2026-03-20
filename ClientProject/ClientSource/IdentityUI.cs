@@ -22,15 +22,28 @@ namespace WITG
         {
             if (TabButton != null) return;
 
-            var chatBox = typeof(NetLobbyScreen).GetField("chatBox", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(lobby) as GUIListBox;
-            var container = chatBox?.Parent?.Parent?.Parent; // logHolderBottom
-            if (container == null) return;
+            var chatBoxField = typeof(NetLobbyScreen).GetField("chatBox", BindingFlags.NonPublic | BindingFlags.Instance);
+            var chatBox = chatBoxField?.GetValue(lobby) as GUIListBox;
+            
+            var container = chatBox?.Parent?.Parent?.Parent; 
+            
+            if (container == null)
+            {
+                LuaCsLogger.LogError("[WITG] Critical Error: Could not find logHolderBottom container!");
+                return;
+            }
 
-            MainPanel = new GUIFrame(new RectTransform(Vector2.One, container.RectTransform, Anchor.Center), style: null) { Visible = false };
-            var layout = new GUILayoutGroup(new RectTransform(new Vector2(0.95f, 0.95f), MainPanel.RectTransform, Anchor.Center)) { Stretch = true, AbsoluteSpacing = GUI.IntScale(5) };
+            MainPanel = new GUIFrame(new RectTransform(Vector2.One, container.RectTransform, Anchor.Center), style: "InnerFrame") { Visible = false };
+            
+            var layout = new GUILayoutGroup(new RectTransform(new Vector2(0.95f, 0.95f), MainPanel.RectTransform, Anchor.Center)) 
+            { 
+                Stretch = true, 
+                AbsoluteSpacing = GUI.IntScale(5) 
+            };
 
             var header = new GUIFrame(new RectTransform(new Vector2(1f, 0.12f), layout.RectTransform), style: "GUISlopedHeader") { Color = Color.Gold * 0.6f };
-            _ = new GUITextBlock(new RectTransform(Vector2.One, header.RectTransform), TextManager.Get("crewmanifestheader"), font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
+            
+            _ = new GUITextBlock(new RectTransform(Vector2.One, header.RectTransform), TextSOS.Get("witg.crewmanifest", "CREW MANIFEST"), font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
 
             ListBox = new GUIListBox(new RectTransform(new Vector2(1f, 0.88f), layout.RectTransform), style: "GUIListBox") { Spacing = GUI.IntScale(4) };
 
@@ -39,24 +52,36 @@ namespace WITG
                 OnClicked = (btn, _) =>
                 {
                     IdentityNetworking.RequestInfo();
-                    foreach (var child in container.Children) child.Visible = (child == MainPanel);
-                    var tabs = typeof(NetLobbyScreen).GetField("chatPanelTabButtons", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(lobby) as System.Collections.Generic.List<GUIButton>;
+                    foreach (var child in container.Children) 
+                    {
+                        child.Visible = (child == MainPanel);
+                    }
+                    
+                    var tabsField = typeof(NetLobbyScreen).GetField("chatPanelTabButtons", BindingFlags.NonPublic | BindingFlags.Instance);
+                    var tabs = tabsField?.GetValue(lobby) as List<GUIButton>;
                     tabs?.ForEach(t => t.Selected = (t == btn));
                     return true;
                 }
             };
 
-            var allTabs = typeof(NetLobbyScreen).GetField("chatPanelTabButtons", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(lobby) as System.Collections.Generic.List<GUIButton>;
+            var allTabsField = typeof(NetLobbyScreen).GetField("chatPanelTabButtons", BindingFlags.NonPublic | BindingFlags.Instance);
+            var allTabs = allTabsField?.GetValue(lobby) as List<GUIButton>;
             allTabs?.Add(TabButton);
 
-            float share = 1.0f / lobby.LogButtons.CountChildren;
-            foreach (var child in lobby.LogButtons.Children) child.RectTransform.RelativeSize = new Vector2(share, 1.0f);
+            if (lobby.LogButtons.CountChildren > 0)
+            {
+                float share = 1.0f / lobby.LogButtons.CountChildren;
+                foreach (var child in lobby.LogButtons.Children) child.RectTransform.RelativeSize = new Vector2(share, 1.0f);
+            }
 
             allTabs?.ForEach(t =>
             {
                 if (t == TabButton) return;
                 var old = t.OnClicked;
-                t.OnClicked = (b, u) => { MainPanel.Visible = false; return old?.Invoke(b, u) ?? true; };
+                t.OnClicked = (b, u) => { 
+                    if (MainPanel != null) MainPanel.Visible = false; 
+                    return old?.Invoke(b, u) ?? true; 
+                };
             });
         }
 
