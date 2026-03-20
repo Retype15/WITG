@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<infotexts language="French" nowhitespace="false" translatedname="Français">
+	<Override>
+		<witg.tab.identities>IDENTITÉS</witg.tab.identities>
+		<witg.error.primaryidnodelete>L'identité principale ne peut pas être supprimée.</witg.error.primaryidnodelete>
+		<witg.deleteidentity>SUPPRIMER L'IDENTITÉ</witg.deleteidentity>
+		<witg.confirmdeleteidentity>Êtes-vous sûr de vouloir supprimer [name] ?</witg.confirmdeleteidentity>
+		<witg.emptyslot>[ EMPLACEMENT VIDE [num] ]</witg.emptyslot>
+	</Override>
+</infotexts>

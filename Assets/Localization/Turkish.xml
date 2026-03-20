@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<infotexts language="Turkish" nowhitespace="false" translatedname="Türkçe">
+	<Override>
+		<witg.tab.identities>KİMLİKLER</witg.tab.identities>
+		<witg.error.primaryidnodelete>Birincil kimlik silinemez.</witg.error.primaryidnodelete>
+		<witg.deleteidentity>KİMLİĞİ SİL</witg.deleteidentity>
+		<witg.confirmdeleteidentity>[name] adlı kimliği silmek istediğinizden emin misiniz?</witg.confirmdeleteidentity>
+		<witg.emptyslot>[ BOŞ YUVA [num] ]</witg.emptyslot>
+	</Override>
+</infotexts>

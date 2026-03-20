@@ -1,0 +1,8 @@
+<Project>
+    <PropertyGroup>
+        <!-- IMPORTANT: Should point to <Barotrauma_Install>\LocalMods\<MyModName>\ -->
+        <!-- IMPORTANT: ModDeplyDir Path must end with '\' -->
+        <ModDeployDir>D:\ProgramS\ProgramFiles\Steam\steamapps\common\Barotrauma\LocalMods\WITG\</ModDeployDir>
+        <AssemblyName>Retype.WITG</AssemblyName>
+    </PropertyGroup>
+</Project>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<infotexts language="Traditional Chinese" nowhitespace="true" translatedname="中文(繁體)">
+	<Override>
+		<witg.tab.identities>身份列表</witg.tab.identities>
+		<witg.error.primaryidnodelete>無法刪除主身份。</witg.error.primaryidnodelete>
+		<witg.deleteidentity>刪除身份</witg.deleteidentity>
+		<witg.confirmdeleteidentity>您確定要刪除 [name] 嗎？</witg.confirmdeleteidentity>
+		<witg.emptyslot>[ 空插槽 [num] ]</witg.emptyslot>
+	</Override>
+</infotexts>

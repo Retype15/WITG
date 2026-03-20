@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<infotexts language="English" nowhitespace="false" translatedname="English">
+	<Override>
+		<witg.tab.identities>IDENTITIES</witg.tab.identities>
+		<witg.error.primaryidnodelete>The primary identity cannot be deleted.</witg.error.primaryidnodelete>
+		<witg.deleteidentity>DELETE IDENTITY</witg.deleteidentity>
+		<witg.confirmdeleteidentity>Are you sure you want to delete [name]?</witg.confirmdeleteidentity>
+		<witg.emptyslot>[ EMPTY SLOT [num] ]</witg.emptyslot>
+	</Override>
+</infotexts>
