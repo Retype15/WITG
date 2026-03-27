@@ -18,7 +18,10 @@ namespace WITG
     {
         public static void Initialize()
         {
-            GameMain.LuaCs.Networking.Receive("WITG_InfoRes", IdentityNetworking.OnReceiveInfo);
+            GameMain.LuaCs.Networking.Receive("WITG_InfoRes", args =>
+            {
+                IdentityNetworking.OnReceiveInfo(args);
+            });
 
             GameMain.LuaCs.Networking.Receive("WITG_SelSuccess", args =>
             {
@@ -28,19 +31,28 @@ namespace WITG
 
                 if (GameMain.Client == null) return;
 
-                GameMain.Client.CharacterInfo = null;
-                typeof(NetLobbyScreen).GetField("campaignCharacterInfo", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                    ?.SetValue(GameMain.NetLobbyScreen, null);
+                IdentityData.Update(slot, [.. IdentityData.Cache.Values]);
 
                 if (hasChar)
                     GameMain.Client.CharacterInfo = CharacterInfo.ClientRead(CharacterPrefab.HumanSpeciesName.ToIdentifier(), msgIn);
 
                 CrossThread.RequestExecutionOnMainThread(() =>
                 {
-                    GameMain.NetLobbyScreen?.Select();
-                    var update = typeof(NetLobbyScreen).GetMethod("UpdatePlayerFrame", BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(CharacterInfo), typeof(bool)], null);
-                    update?.Invoke(GameMain.NetLobbyScreen, [GameMain.Client.CharacterInfo, true]);
-                    IdentityNetworking.RequestInfo();
+                    IdentityUI.Refresh();
+                    if (GameMain.GameSession?.IsRunning ?? false)
+                    {
+                        if (GameMain.Client.CharacterInfo?.PermanentlyDead ?? false)
+                            RespawnManager.ShowDeathPromptIfNeeded(0.5f);
+                        else
+                            IdentityUI.ToggleFloatingPanel();
+                    }
+                    else
+                    {
+                        GameMain.NetLobbyScreen?.Select();
+                        var updateMethod = typeof(NetLobbyScreen).GetMethod("UpdatePlayerFrame",
+                            BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(CharacterInfo), typeof(bool)], null);
+                        updateMethod?.Invoke(GameMain.NetLobbyScreen, [GameMain.Client.CharacterInfo, true]);
+                    }
                 });
             });
         }
@@ -71,6 +83,44 @@ namespace WITG
             LuaCsLogger.LogMessage("[WITG] Switching campaign/mode. Clearing local cache.", Color.Gold);
 #endif
             IdentityData.Clear();
+        }
+    }
+
+    [HarmonyPatch(typeof(DeathPrompt))]
+    public static class DeathPromptPatches
+    {
+        [HarmonyPatch("CreatePrompt")]
+        [HarmonyPostfix]
+        public static void CreatePromptPostfix(DeathPrompt __instance)
+        {
+            var deathPromptFrameField = typeof(DeathPrompt).GetField("deathPromptFrame",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            if (deathPromptFrameField?.GetValue(__instance) is not GUIFrame deathPromptFrame) return;
+
+            if (deathPromptFrame.Children.FirstOrDefault(c => c is GUILayoutGroup) is not GUILayoutGroup content) return;
+
+            if (content.Children.FirstOrDefault(c =>
+                c is GUILayoutGroup { IsHorizontal: true }) is not GUILayoutGroup decisionContainer) return;
+
+            var identityBtnContainer = new GUILayoutGroup(new RectTransform(new Vector2(0.3f, 1.0f),
+                decisionContainer.RectTransform));
+
+            _ = new GUIButton(new RectTransform(Vector2.One, identityBtnContainer.RectTransform), TextSOS.Get("witg.changeidentity", "CHANGE IDENTITY"), style: "GUIButtonSmall")
+            {
+                OnClicked = (b, userdata) =>
+                {
+                    if (IdentityUI.FloatingPanel != null) IdentityUI.ToggleFloatingPanel();
+
+                    IdentityUI.ToggleFloatingPanel();
+                    return true;
+                }
+            };
+
+            float share = 1.0f / decisionContainer.CountChildren;
+            foreach (var child in decisionContainer.Children)
+            {
+                child.RectTransform.RelativeSize = new Vector2(share, 1f);
+            }
         }
     }
 }
