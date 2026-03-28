@@ -244,8 +244,7 @@ namespace WITG
         {
             if (FloatingPanel != null)
             {
-                var parent = FloatingPanel.Parent ?? FloatingPanel;
-                GUIMessageBox.MessageBoxes.Remove(parent);
+                GUIMessageBox.MessageBoxes.Remove(FloatingPanel);
                 FloatingPanel = null;
                 FloatingListBox = null;
                 ActionButton = null;
@@ -260,7 +259,7 @@ namespace WITG
 
             var header = new GUIFrame(new RectTransform(new Vector2(1f, 0.1f), layout.RectTransform), style: "GUISlopedHeader") { Color = Color.Gold * 0.6f };
             _ = new GUITextBlock(new RectTransform(new Vector2(0.8f, 1f), header.RectTransform, Anchor.CenterLeft), TextSOS.Get("witg.crewmanifest", "CREW MANIFEST"), font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
-            _ = new GUIButton(new RectTransform(new Vector2(0.05f, 0.8f), header.RectTransform, Anchor.CenterRight), style: "GUICancelButton") { OnClicked = (_, _) => { ToggleFloatingPanel(); return true; } };
+            _ = new GUIButton(new RectTransform(new Vector2(0.10f, 0.8f), header.RectTransform, Anchor.CenterRight), style: "GUICancelButton") { OnClicked = (_, _) => { ToggleFloatingPanel(); return true; } };
 
             FloatingListBox = new GUIListBox(new RectTransform(new Vector2(1f, 0.75f), layout.RectTransform), style: "GUIListBox")
             {
