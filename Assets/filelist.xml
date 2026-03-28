@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<contentpackage name="Who Invited These Guys" modversion="1.0.0" gameversion="1.11.5.0" corepackage="false" >
+<contentpackage name="Who Invited These Guys" modversion="1.0.0-beta" gameversion="1.11.5.0" corepackage="false" >
     <Text file="%ModDir%/Localization/BrazilianPortuguese.xml" />
     <Text file="%ModDir%/Localization/CastillianSpanish.xml" />
     <Text file="%ModDir%/Localization/English.xml" />
