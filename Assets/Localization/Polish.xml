@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>Nie można usunąć tożsamości podstawowej.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>USUŃ TOŻSAMOŚĆ</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Czy na pewno chcesz usunąć [name]?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(Uwaga: Zostanie to utrwalone dopiero po następnym zapisie kampanii)</witg.deletewarning>
+		<witg.dead>MARTWY</witg.dead>
+		<witg.wounded>RANNY</witg.wounded>
 		<witg.emptyslot>[ PUSTE MIEJSCE [num] ]</witg.emptyslot>
+		<witg.selectaslot>WYBIERZ MIEJSCE</witg.selectaslot>
+		<witg.button.select>WYBIERZ TOŻSAMOŚĆ</witg.button.select>
+		<witg.changeidentity>ZMIEŃ TOŻSAMOŚĆ</witg.changeidentity>
 	</Override>
 </infotexts>

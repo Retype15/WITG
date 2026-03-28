@@ -5,7 +5,13 @@
 		<witg.crewmanifest>MÜRETTEBAT MANİFESTOSU</witg.crewmanifest>
 		<witg.error.primaryidnodelete>Birincil kimlik silinemez.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>KİMLİĞİ SİL</witg.deleteidentity>
-		<witg.confirmdeleteidentity>[name] adlı kimliği silmek istediğinizden emin misiniz?</witg.confirmdeleteidentity>
+		<witg.confirmdeleteidentity>[name] isimli kimliği silmek istediğinizden emin misiniz?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(Not: Bu işlem ancak bir sonraki kampanya kaydından sonra kalıcı olacaktır)</witg.deletewarning>
+		<witg.dead>ÖLÜ</witg.dead>
+		<witg.wounded>YARALI</witg.wounded>
 		<witg.emptyslot>[ BOŞ YUVA [num] ]</witg.emptyslot>
+		<witg.selectaslot>BİR YUVA SEÇİN</witg.selectaslot>
+		<witg.button.select>KİMLİK SEÇ</witg.button.select>
+		<witg.changeidentity>KİMLİĞİ DEĞİŞTİR</witg.changeidentity>
 	</Override>
 </infotexts>

@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>기본 신원은 삭제할 수 없습니다.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>신원 삭제</witg.deleteidentity>
 		<witg.confirmdeleteidentity>정말로 [name]을(를) 삭제하시겠습니까?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(참고: 이는 다음 캠페인 저장 후에만 영구적으로 적용됩니다)</witg.deletewarning>
+		<witg.dead>사망</witg.dead>
+		<witg.wounded>부상</witg.wounded>
 		<witg.emptyslot>[ 빈 슬롯 [num] ]</witg.emptyslot>
+		<witg.selectaslot>슬롯을 선택하십시오</witg.selectaslot>
+		<witg.button.select>신원 선택</witg.button.select>
+		<witg.changeidentity>신원 변경</witg.changeidentity>
 	</Override>
 </infotexts>
