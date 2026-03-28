@@ -15,7 +15,7 @@ namespace WITG
     {
         public static void RequestInfo()
         {
-            if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign || GameMain.GameSession.IsRunning) return;
+            if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign) return;
             GameMain.LuaCs.Networking.Send(GameMain.LuaCs.Networking.Start("WITG_ReqInfo"), DeliveryMethod.Reliable);
         }
 
