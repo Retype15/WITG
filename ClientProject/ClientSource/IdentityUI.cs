@@ -149,9 +149,18 @@ namespace WITG
                         var options = new ContextMenuOption[] {
                             new(TextManager.Get("Delete"), isEnabled: true, onSelected: () =>
                             {
-                                var confirm = new GUIMessageBox(TextSOS.Get("witg.deleteidentity", "DELETE IDENTITY"),
-                                    TextSOS.Get("witg.confirmdeleteidentity", "Are you sure you want to delete [name]?").Replace("[name]", data.Name),
+                                var confirm = new GUIMessageBox(
+                                    TextSOS.Get("witg.deleteidentity", "DELETE IDENTITY"),
+                                    TextSOS.Get("witg.confirmdeleteidentity", "Are you sure you want to delete [name]?").Replace("[name]", data.Name) +
+                                    "\n\n" + TextSOS.Get("witg.deletewarning", "(Note: This will be permanent only after the next campaign save)"),
                                     [TextManager.Get("Yes"), TextManager.Get("No")]);
+
+                                if (targetList == FloatingListBox && FloatingPanel != null)
+                                {
+                                    GUIMessageBox.MessageBoxes.Remove(confirm);
+                                    confirm.RectTransform.Parent = FloatingPanel.RectTransform;
+                                    confirm.RectTransform.SetAsLastChild();
+                                }
 
                                 confirm.Buttons[0].OnClicked = (b, u) => {
                                     IdentityData.Cache.Remove(slotIndex);
@@ -244,8 +253,8 @@ namespace WITG
                 return;
             }
 
-            var panelHolder = new GUIFrame(new RectTransform(Vector2.One, GUI.Canvas), style: null);
-            FloatingPanel = new GUIFrame(new RectTransform(new Vector2(0.35f, 0.55f), panelHolder.RectTransform, Anchor.Center), style: "GUIFrame") { CanBeFocused = true };
+            //var panelHolder = new GUIFrame(new RectTransform(Vector2.One, GUI.Canvas), style: null);
+            FloatingPanel = new GUIFrame(new RectTransform(new Vector2(0.4f, 0.6f), GUI.Canvas, Anchor.Center), style: "GUIFrame") { CanBeFocused = true };
 
             var layout = new GUILayoutGroup(new RectTransform(new Vector2(0.9f, 0.9f), FloatingPanel.RectTransform, Anchor.Center)) { Stretch = true, AbsoluteSpacing = GUI.IntScale(5) };
 
@@ -271,7 +280,7 @@ namespace WITG
                 }
             };
 
-            GUIMessageBox.MessageBoxes.Add(panelHolder);
+            GUIMessageBox.MessageBoxes.Add(FloatingPanel);
             IsDataStale = true;
             Refresh();
             IdentityNetworking.RequestInfo();
