@@ -20,6 +20,7 @@ namespace WITG
         {
             GameMain.LuaCs.Networking.Receive("WITG_InfoRes", args =>
             {
+                WITGLogger.Log("[WITG] Client: Received info update message.");
                 IdentityNetworking.OnReceiveInfo(args);
             });
 
@@ -28,6 +29,8 @@ namespace WITG
                 var msgIn = (IReadMessage)args[0];
                 int slot = msgIn.ReadInt32();
                 bool hasChar = msgIn.ReadBoolean();
+
+                WITGLogger.Log($"[WITG] Client: Selection success received for Slot {slot} (HasInfo: {hasChar}).");
 
                 if (GameMain.Client == null) return;
 
@@ -100,9 +103,7 @@ namespace WITG
         [HarmonyPrefix]
         public static void SelectModePrefix()
         {
-#if DEBUG
-            LuaCsLogger.LogMessage("[WITG] Switching campaign/mode. Clearing local cache.", Color.Gold);
-#endif
+            WITGLogger.Log("[WITG] Client: Switching campaign/mode. Clearing local cache.", Color.Gold);
             IdentityData.Clear();
         }
     }
@@ -119,6 +120,8 @@ namespace WITG
             if (deathPromptFrameField?.GetValue(__instance) is not GUIFrame deathPromptFrame) return;
 
             if (deathPromptFrame.Children.FirstOrDefault(c => c is GUILayoutGroup) is not GUILayoutGroup content) return;
+
+            WITGLogger.Log("[WITG] Client: Injecting Change Identity button into DeathPrompt.");
 
             if (content.Children.FirstOrDefault(c =>
                 c is GUILayoutGroup { IsHorizontal: true }) is not GUILayoutGroup decisionContainer) return;

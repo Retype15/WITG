@@ -28,13 +28,14 @@ namespace WITG
         {
             if (TabButton != null) return;
 
+            WITGLogger.Log("[WITG] UI: Initializing for lobby.");
             var chatBoxField = typeof(NetLobbyScreen).GetField("chatBox", BindingFlags.NonPublic | BindingFlags.Instance);
             var chatBox = chatBoxField?.GetValue(lobby) as GUIListBox;
             var container = chatBox?.Parent?.Parent?.Parent;
 
             if (container == null)
             {
-                LuaCsLogger.LogError("[WITG] Critical Error: Could not find logHolderBottom container!");
+                WITGLogger.Error("[WITG] Critical Error: Could not find logHolderBottom container!");
                 return;
             }
 
@@ -94,6 +95,7 @@ namespace WITG
 
         public static void Refresh()
         {
+            WITGLogger.Log("[WITG] UI: Refreshing identity lists.");
             IsDataStale = false;
             PopulateList(ListBox);
             PopulateList(FloatingListBox);
@@ -103,6 +105,7 @@ namespace WITG
         private static void PopulateList(GUIListBox? targetList)
         {
             if (targetList == null) return;
+            WITGLogger.Log($"[WITG] UI: Populating list (Count: {IdentityData.Cache.Count})");
             targetList.Deselect();
             targetList.Content.ClearChildren();
 
@@ -129,10 +132,15 @@ namespace WITG
 
                         if (targetList == ListBox)
                         {
-                            if (!isActive) IdentityNetworking.SelectSlot(slotIndex);
+                            if (!isActive)
+                            {
+                                WITGLogger.Log($"[WITG] UI: Selected slot {slotIndex} from Main List.");
+                                IdentityNetworking.SelectSlot(slotIndex);
+                            }
                         }
                         else
                         {
+                            WITGLogger.Log($"[WITG] UI: Selecting slot {slotIndex} in Floating List (not sending yet).");
                             targetList.Select(slotIndex);
                             UpdateActionButton();
                         }
@@ -149,6 +157,7 @@ namespace WITG
                         var options = new ContextMenuOption[] {
                             new(TextManager.Get("Delete"), isEnabled: true, onSelected: () =>
                             {
+                                WITGLogger.Log($"[WITG] UI: Opening delete confirmation for slot {slotIndex} ({data.Name}).");
                                 var confirm = new GUIMessageBox(
                                     TextSOS.Get("witg.deleteidentity", "DELETE IDENTITY"),
                                     TextSOS.Get("witg.confirmdeleteidentity", "Are you sure you want to delete [name]?").Replace("[name]", data.Name) +
@@ -163,6 +172,7 @@ namespace WITG
                                 }
 
                                 confirm.Buttons[0].OnClicked = (b, u) => {
+                                    WITGLogger.Log($"[WITG] UI: Confirmed delete for slot {slotIndex}. Sending network request.");
                                     IdentityData.Cache.Remove(slotIndex);
                                     IdentityNetworking.SendDeleteSlot(slotIndex);
                                     confirm.Close();
@@ -244,6 +254,7 @@ namespace WITG
         {
             if (FloatingPanel != null)
             {
+                WITGLogger.Log("[WITG] UI: Closing Floating Panel.");
                 GUIMessageBox.MessageBoxes.Remove(FloatingPanel);
                 FloatingPanel = null;
                 FloatingListBox = null;
@@ -251,6 +262,8 @@ namespace WITG
                 SelectedUISlot = -1;
                 return;
             }
+
+            WITGLogger.Log("[WITG] UI: Opening Floating Panel.");
 
             //var panelHolder = new GUIFrame(new RectTransform(Vector2.One, GUI.Canvas), style: null);
             FloatingPanel = new GUIFrame(new RectTransform(new Vector2(0.4f, 0.6f), GUI.Canvas, Anchor.Center), style: "GUIFrame") { CanBeFocused = true };
@@ -274,7 +287,10 @@ namespace WITG
                 OnClicked = (btn, obj) =>
                 {
                     if (SelectedUISlot != -1)
+                    {
+                        WITGLogger.Log($"[WITG] UI: ActionButton clicked. Selecting slot {SelectedUISlot}.");
                         IdentityNetworking.SelectSlot(SelectedUISlot);
+                    }
                     return true;
                 }
             };

@@ -30,7 +30,7 @@ namespace WITG
             Cache.Clear();
             foreach (var entry in entries) Cache[entry.Slot] = entry;
             ActiveSlot = activeSlot;
-            LuaCsLogger.LogMessage($"[WITG] Cache Updated. Active Slot: {ActiveSlot}");
+            WITGLogger.Log($"[WITG] Cache Updated. Active Slot: {ActiveSlot}");
         }
 
         public static void Clear()

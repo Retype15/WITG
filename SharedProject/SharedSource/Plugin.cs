@@ -8,6 +8,8 @@
 using Barotrauma;
 using HarmonyLib;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using Microsoft.Xna.Framework;
 
 [assembly: IgnoresAccessChecksTo("Barotrauma")]
 [assembly: IgnoresAccessChecksTo("DedicatedServer")]
@@ -29,7 +31,7 @@ namespace WITG
 #elif SERVER
             InitServer();
 #endif
-            LuaCsLogger.LogMessage($"[WITG] Shared: Initialized.");
+            WITGLogger.Log($"[WITG] Shared: Initialized.");
         }
 
         public void OnLoadCompleted() { }
@@ -44,7 +46,7 @@ namespace WITG
             DisposeServer();
 #endif
             GC.SuppressFinalize(this);
-            LuaCsLogger.LogMessage($"[WITG] Disposed.");
+            WITGLogger.Log($"[WITG] Disposed.");
         }
     }
 
@@ -64,6 +66,18 @@ namespace WITG
             }
             return text;
         }
+    }
+
+    public static class WITGLogger
+    {
+        [Conditional("DEBUG")]
+        public static void Log(string message) => LuaCsLogger.LogMessage(message);
+
+        [Conditional("DEBUG")]
+        public static void Log(string message, Color color) => LuaCsLogger.LogMessage(message, color);
+
+        [Conditional("DEBUG")]
+        public static void Error(string message) => LuaCsLogger.LogError(message);
     }
 }
 

@@ -16,11 +16,13 @@ namespace WITG
         public static void RequestInfo()
         {
             if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign) return;
+            WITGLogger.Log("[WITG] Network: Requesting identity info from server.");
             GameMain.LuaCs.Networking.Send(GameMain.LuaCs.Networking.Start("WITG_ReqInfo"), DeliveryMethod.Reliable);
         }
 
         public static void SelectSlot(int slot)
         {
+            WITGLogger.Log($"[WITG] Network: Sending slot selection request (Slot {slot}).");
             var msg = GameMain.LuaCs.Networking.Start("WITG_SelSlot");
             msg.WriteInt32(slot);
             GameMain.LuaCs.Networking.Send(msg, DeliveryMethod.Reliable);
@@ -31,7 +33,7 @@ namespace WITG
             var msgIn = (IReadMessage)args[0];
             int count = msgIn.ReadInt32();
 
-            LuaCsLogger.LogMessage($"[WITG] Received {count} characters from server.");
+            WITGLogger.Log($"[WITG] Network: Received {count} character(s) from server.");
 
             var entries = new List<IdentityData.CharacterEntry>();
             for (int i = 0; i < count; i++)
@@ -55,6 +57,7 @@ namespace WITG
         }
         public static void SendDeleteSlot(int slot)
         {
+            WITGLogger.Log($"[WITG] Network: Sending delete request for slot {slot}.");
             var msg = GameMain.LuaCs.Networking.Start("WITG_DeleteSlot");
             msg.WriteInt32(slot);
             GameMain.LuaCs.Networking.Send(msg, DeliveryMethod.Reliable);

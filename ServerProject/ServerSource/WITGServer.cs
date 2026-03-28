@@ -36,12 +36,11 @@ namespace WITG
 
         public static void Initialize()
         {
-            LuaCsLogger.LogMessage("[WITG-Server] Initializing server-side slot management.");
+            WITGLogger.Log("[WITG-Server] Initializing server-side slot management.");
 
             GameMain.LuaCs.Networking.Receive("WITG_ReqInfo", args =>
             {
-
-                LuaCsLogger.LogMessage("[WITG-Server] Received request for info.");
+                WITGLogger.Log("[WITG-Server] Received request for info.");
 
                 var client = (Client)args[1];
 
@@ -56,7 +55,7 @@ namespace WITG
                     client.AccountId.TryUnwrap(out var clientId) &&
                     accId == clientId).ToList();
 
-                LuaCsLogger.LogMessage($"[WITG-Server] Sending {allData.Count} slots to {client.Name}");
+                WITGLogger.Log($"[WITG-Server] Sending {allData.Count} slots to {client.Name}");
 
                 msgOut.WriteInt32(allData.Count);
                 foreach (var data in allData)
@@ -74,7 +73,7 @@ namespace WITG
 
             GameMain.LuaCs.Networking.Receive("WITG_SelSlot", args =>
             {
-                LuaCsLogger.LogMessage("[WITG-Server] Received request to select slot.");
+                WITGLogger.Log("[WITG-Server] Received request to select slot.");
 
                 var msgIn = (IReadMessage)args[0];
                 var client = (Client)args[1];
@@ -135,12 +134,12 @@ namespace WITG
                 GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
                 //WITGServer.SyncClientRoster(client);
 
-                LuaCsLogger.LogMessage($"[WITG-Server] Client {client.Name} selected slot {targetSlot}.");
+                WITGLogger.Log($"[WITG-Server] Client {client.Name} selected slot {targetSlot}.");
             });
 
             GameMain.LuaCs.Networking.Receive("WITG_DeleteSlot", args =>
             {
-                LuaCsLogger.LogMessage("[WITG-Server] Received request to delete slot.");
+                WITGLogger.Log("[WITG-Server] Received request to delete slot.");
 
                 var msgIn = (IReadMessage)args[0];
                 var client = (Client)args[1];
@@ -150,7 +149,7 @@ namespace WITG
 
                 if (slotToDelete == 0)
                 {
-                    LuaCsLogger.LogMessage($"[WITG-Server] Client {client.Name} tried to delete slot 0. Request denied.");
+                    WITGLogger.Log($"[WITG-Server] Client {client.Name} tried to delete slot 0. Request denied.");
                     return;
                 }
 
@@ -172,7 +171,7 @@ namespace WITG
 
                     campaign.characterData.Remove(charData);
 
-                    LuaCsLogger.LogMessage($"[WITG] Server: Slot {slotToDelete} deleted for {client.Name}.");
+                    WITGLogger.Log($"[WITG] Server: Slot {slotToDelete} deleted for {client.Name}.");
 
                     if (WITGServer.GetActiveSlot(client) == slotToDelete)
                     {
@@ -202,7 +201,7 @@ namespace WITG
                 }
             });
 
-            LuaCsLogger.LogMessage("[WITG-Server] Server-side slot management initialized.");
+            WITGLogger.Log("[WITG-Server] Server-side slot management initialized.");
         }
 
         public static void SyncClientRoster(Client client)
@@ -414,7 +413,7 @@ namespace WITG
                 if (dataField?.GetValue(__instance.CampaignMetadata) is Dictionary<Identifier, object> internalDict)
                 {
                     internalDict.Remove(MetadataKey);
-                    LuaCsLogger.LogMessage($"[WITG] Cleanup: Migrated {migratedCount} identities and removed old metadata.");
+                    WITGLogger.Log($"[WITG] Cleanup: Migrated {migratedCount} identities and removed old metadata.");
                 }
             }
         }
