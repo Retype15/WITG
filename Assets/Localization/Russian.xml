@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>Основную личность нельзя удалить.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>УДАЛИТЬ ЛИЧНОСТЬ</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Вы уверены, что хотите удалить [name]?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(Примечание: это станет окончательным только после следующего сохранения кампании)</witg.deletewarning>
+		<witg.dead>МЕРТВ</witg.dead>
+		<witg.wounded>РАНЕН</witg.wounded>
 		<witg.emptyslot>[ ПУСТОЙ СЛОТ [num] ]</witg.emptyslot>
+		<witg.selectaslot>ВЫБЕРИТЕ СЛОТ</witg.selectaslot>
+		<witg.button.select>ВЫБРАТЬ ЛИЧНОСТЬ</witg.button.select>
+		<witg.changeidentity>ИЗМЕНИТЬ ЛИЧНОСТЬ</witg.changeidentity>
 	</Override>
 </infotexts>

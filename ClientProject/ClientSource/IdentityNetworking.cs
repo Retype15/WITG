@@ -15,7 +15,7 @@ namespace WITG
     {
         public static void RequestInfo()
         {
-            if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign || GameMain.GameSession.IsRunning) return;
+            if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign) return;
             GameMain.LuaCs.Networking.Send(GameMain.LuaCs.Networking.Start("WITG_ReqInfo"), DeliveryMethod.Reliable);
         }
 
@@ -30,7 +30,7 @@ namespace WITG
         {
             var msgIn = (IReadMessage)args[0];
             int count = msgIn.ReadInt32();
-            
+
             LuaCsLogger.LogMessage($"[WITG] Received {count} characters from server.");
 
             var entries = new List<IdentityData.CharacterEntry>();
@@ -40,11 +40,18 @@ namespace WITG
                 {
                     Slot = msgIn.ReadInt32(),
                     Name = msgIn.ReadString(),
-                    Job = msgIn.ReadString()
+                    Job = msgIn.ReadString(),
+                    IsWounded = msgIn.ReadBoolean(),
+                    IsPermanentlyDead = msgIn.ReadBoolean()
                 });
             }
-            IdentityData.Update(msgIn.ReadInt32(), entries);
-            CrossThread.RequestExecutionOnMainThread(() => IdentityUI.Refresh());
+            int activeSlot = msgIn.ReadInt32();
+            IdentityData.Update(activeSlot, entries);
+            CrossThread.RequestExecutionOnMainThread(() =>
+            {
+                IdentityUI.Refresh();
+                typeof(IdentityUI).GetMethod("UpdateActionButton", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?.Invoke(null, null);
+            });
         }
         public static void SendDeleteSlot(int slot)
         {

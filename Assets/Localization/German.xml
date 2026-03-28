@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>Die primäre Identität kann nicht gelöscht werden.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>IDENTITÄT LÖSCHEN</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Sind Sie sicher, dass Sie [name] löschen möchten?</witg.confirmdeleteidentity>
-		<witg.emptyslot>[ LEERER PLATZ [num] ]</witg.emptyslot>
+		<witg.deletewarning>(Hinweis: Dies wird erst nach dem nächsten Speichern der Kampagne dauerhaft)</witg.deletewarning>
+		<witg.dead>TOT</witg.dead>
+		<witg.wounded>VERWUNDET</witg.wounded>
+		<witg.emptyslot>[ LEERER SLOT [num] ]</witg.emptyslot>
+		<witg.selectaslot>WÄHLEN SIE EINEN SLOT</witg.selectaslot>
+		<witg.button.select>IDENTITÄT AUSWÄHLEN</witg.button.select>
+		<witg.changeidentity>IDENTITÄT ÄNDERN</witg.changeidentity>
 	</Override>
 </infotexts>

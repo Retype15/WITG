@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>The primary identity cannot be deleted.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>DELETE IDENTITY</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Are you sure you want to delete [name]?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(Note: This will be permanent only after the next campaign save)</witg.deletewarning>
+		<witg.dead>DEAD</witg.dead>
+		<witg.wounded>WOUNDED</witg.wounded>
 		<witg.emptyslot>[ EMPTY SLOT [num] ]</witg.emptyslot>
+		<witg.selectaslot>SELECT A SLOT</witg.selectaslot>
+		<witg.button.select>SELECT IDENTITY</witg.button.select>
+		<witg.changeidentity>CHANGE IDENTITY</witg.changeidentity>
 	</Override>
 </infotexts>

@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>無法刪除主身份。</witg.error.primaryidnodelete>
 		<witg.deleteidentity>刪除身份</witg.deleteidentity>
 		<witg.confirmdeleteidentity>您確定要刪除 [name] 嗎？</witg.confirmdeleteidentity>
-		<witg.emptyslot>[ 空插槽 [num] ]</witg.emptyslot>
+		<witg.deletewarning>（注意：這將在下次戰役存檔後永久生效）</witg.deletewarning>
+		<witg.dead>已死亡</witg.dead>
+		<witg.wounded>受傷</witg.wounded>
+		<witg.emptyslot>[ 空槽位 [num] ]</witg.emptyslot>
+		<witg.selectaslot>選擇一個槽位</witg.selectaslot>
+		<witg.button.select>選擇身份</witg.button.select>
+		<witg.changeidentity>更改身份</witg.changeidentity>
 	</Override>
 </infotexts>

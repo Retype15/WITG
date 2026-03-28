@@ -6,6 +6,12 @@
 		<witg.error.primaryidnodelete>L'identité principale ne peut pas être supprimée.</witg.error.primaryidnodelete>
 		<witg.deleteidentity>SUPPRIMER L'IDENTITÉ</witg.deleteidentity>
 		<witg.confirmdeleteidentity>Êtes-vous sûr de vouloir supprimer [name] ?</witg.confirmdeleteidentity>
+		<witg.deletewarning>(Note : Cela sera permanent seulement après la prochaine sauvegarde de la campagne)</witg.deletewarning>
+		<witg.dead>MORT</witg.dead>
+		<witg.wounded>BLESSÉ</witg.wounded>
 		<witg.emptyslot>[ EMPLACEMENT VIDE [num] ]</witg.emptyslot>
+		<witg.selectaslot>SÉLECTIONNEZ UN EMPLACEMENT</witg.selectaslot>
+		<witg.button.select>SÉLECTIONNER L'IDENTITÉ</witg.button.select>
+		<witg.changeidentity>CHANGER D'IDENTITÉ</witg.changeidentity>
 	</Override>
 </infotexts>
