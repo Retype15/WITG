@@ -18,7 +18,8 @@ namespace WITG
             public string Name;
             public string Job;
             public int Slot;
-            public bool IsDead;
+            public bool IsWounded;
+            public bool IsPermanentlyDead;
         }
 
         public static readonly Dictionary<int, CharacterEntry> Cache = [];

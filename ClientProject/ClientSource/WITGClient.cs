@@ -35,23 +35,44 @@ namespace WITG
 
                 if (hasChar)
                     GameMain.Client.CharacterInfo = CharacterInfo.ClientRead(CharacterPrefab.HumanSpeciesName.ToIdentifier(), msgIn);
+                else
+                    GameMain.Client.CharacterInfo = null;
 
                 CrossThread.RequestExecutionOnMainThread(() =>
                 {
                     IdentityUI.Refresh();
                     if (GameMain.GameSession?.IsRunning ?? false)
                     {
-                        if (GameMain.Client.CharacterInfo?.PermanentlyDead ?? false)
-                            RespawnManager.ShowDeathPromptIfNeeded(0.5f);
-                        else
+                        var selectedEntry = IdentityData.Cache.GetValueOrDefault(slot);
+
+                        if (hasChar && !selectedEntry.IsPermanentlyDead)
+                        {
+                            // 1st case PJ lived
                             IdentityUI.ToggleFloatingPanel();
+                            var deathPrompt = GameMain.GameSession.DeathPrompt;
+                            if (deathPrompt != null)
+                            {
+                                deathPrompt.Close();
+                                GameMain.GameSession.DeathPrompt = null;
+                            }
+                        }
+                        else
+                        {
+                            // 2nd case PJ dead or no pj
+                            IdentityUI.ToggleFloatingPanel();
+                        }
                     }
-                    else
+                    else if (GameMain.NetLobbyScreen != null)
                     {
-                        GameMain.NetLobbyScreen?.Select();
+                        var lobby = GameMain.NetLobbyScreen;
+
+                        lobby.SetCampaignCharacterInfo(GameMain.Client.CharacterInfo);
                         var updateMethod = typeof(NetLobbyScreen).GetMethod("UpdatePlayerFrame",
                             BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(CharacterInfo), typeof(bool)], null);
-                        updateMethod?.Invoke(GameMain.NetLobbyScreen, [GameMain.Client.CharacterInfo, true]);
+
+                        updateMethod?.Invoke(lobby, [GameMain.Client.CharacterInfo, true]);
+
+                        GameMain.NetLobbyScreen.Select();
                     }
                 });
             });
@@ -105,7 +126,7 @@ namespace WITG
             var identityBtnContainer = new GUILayoutGroup(new RectTransform(new Vector2(0.3f, 1.0f),
                 decisionContainer.RectTransform));
 
-            _ = new GUIButton(new RectTransform(Vector2.One, identityBtnContainer.RectTransform), TextSOS.Get("witg.changeidentity", "CHANGE IDENTITY"), style: "GUIButtonSmall")
+            _ = new GUIButton(new RectTransform(Vector2.One, identityBtnContainer.RectTransform), TextSOS.Get("witg.changeidentity", "CHANGE IDENTITY"), style: "GUIButton")
             {
                 OnClicked = (b, userdata) =>
                 {

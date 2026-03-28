@@ -61,13 +61,14 @@ namespace WITG
                 msgOut.WriteInt32(allData.Count);
                 foreach (var data in allData)
                 {
-                    msgOut.WriteInt32(GetSlot(data));
-                    msgOut.WriteString(data.Name ?? "Unknown");
+                    msgOut.WriteInt32(GetSlot(data)); // Slot
+                    msgOut.WriteString(data.Name ?? "Unknown"); // Name
                     string jobName = data.CharacterInfo?.Job?.Name.Value ?? "No Job";
-                    msgOut.WriteString(jobName);
-                    msgOut.WriteBoolean(data.CharacterInfo?.PermanentlyDead ?? false);
+                    msgOut.WriteString(jobName); // Job
+                    msgOut.WriteBoolean(data.CharacterInfo?.CauseOfDeath != null); // IsWounded
+                    msgOut.WriteBoolean(data.CharacterInfo?.PermanentlyDead ?? false); // IsPermanentlyDead
                 }
-                msgOut.WriteInt32(GetActiveSlot(client));
+                msgOut.WriteInt32(GetActiveSlot(client)); // ActiveSlot
                 GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
             });
 
@@ -91,28 +92,36 @@ namespace WITG
                 {
                     if (client.Character != null) { client.Character.SetOwnerClient(null); client.Character = null; }
 
-                    client.CharacterInfo = targetData?.CharacterInfo ?? new CharacterInfo(CharacterPrefab.HumanSpeciesName.ToIdentifier(), client.Name);
-                    client.SpectateOnly = client.CharacterInfo.PermanentlyDead;
+                    client.CharacterInfo = targetData?.CharacterInfo;
+                    client.SpectateOnly = client.CharacterInfo == null || client.CharacterInfo.PermanentlyDead;
                     client.WaitForNextRoundRespawn = false;
 
-                    Character? existingLiveCharacter = Character.CharacterList.FirstOrDefault(c => c.Info == client.CharacterInfo && !c.IsDead);
-                    if (existingLiveCharacter != null)
+                    if (client.CharacterInfo != null)
                     {
-                        client.Character = existingLiveCharacter;
-                        existingLiveCharacter.SetOwnerClient(client);
-                        client.SpectateOnly = false;
+                        Character? existingLiveCharacter = Character.CharacterList.FirstOrDefault(c => c.Info == client.CharacterInfo && !c.IsDead);
+                        if (existingLiveCharacter != null)
+                        {
+                            client.Character = existingLiveCharacter;
+                            existingLiveCharacter.SetOwnerClient(client);
+                            client.SpectateOnly = false;
+                        }
                     }
 
-                    if (campaign.SetClientCharacterData(client) is CharacterCampaignData characterData)
+                    if (targetData != null)
                     {
-                        SetSlot(characterData, targetSlot);
-                        characterData.HasSpawned = targetData != null && targetData.HasSpawned;
+                        if (campaign.SetClientCharacterData(client) is CharacterCampaignData characterData)
+                        {
+                            SetSlot(characterData, targetSlot);
+                            characterData.HasSpawned = targetData.HasSpawned;
+                        }
                     }
                 }
                 else
                 {
-                    client.CharacterInfo = targetData?.CharacterInfo ?? new CharacterInfo(CharacterPrefab.HumanSpeciesName.ToIdentifier(), client.Name);
+                    client.CharacterInfo = targetData?.CharacterInfo;
                 }
+
+                campaign.IncrementLastUpdateIdForFlag(MultiPlayerCampaign.NetFlags.CharacterInfo);
 
                 var msgOut = GameMain.LuaCs.Networking.Start("WITG_SelSuccess");
                 msgOut.WriteInt32(targetSlot);
@@ -124,7 +133,7 @@ namespace WITG
                 finalData?.CharacterInfo.ServerWrite(msgOut);
 
                 GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
-                WITGServer.SyncClientRoster(client);
+                //WITGServer.SyncClientRoster(client);
 
                 LuaCsLogger.LogMessage($"[WITG-Server] Client {client.Name} selected slot {targetSlot}.");
             });
@@ -185,6 +194,7 @@ namespace WITG
                         msgOut.WriteInt32(WITGServer.GetSlot(cd));
                         msgOut.WriteString(cd.Name ?? "Unknown");
                         msgOut.WriteString(cd.CharacterInfo?.Job?.Name.Value ?? "No Job");
+                        msgOut.WriteBoolean(cd.CharacterInfo?.CauseOfDeath != null);
                         msgOut.WriteBoolean(cd.CharacterInfo?.PermanentlyDead ?? false);
                     }
                     msgOut.WriteInt32(WITGServer.GetActiveSlot(client));
@@ -211,6 +221,7 @@ namespace WITG
                 msgOut.WriteInt32(GetSlot(data));
                 msgOut.WriteString(data.Name ?? "Unknown");
                 msgOut.WriteString(data.CharacterInfo?.Job?.Name.Value ?? "No Job");
+                msgOut.WriteBoolean(data.CharacterInfo?.CauseOfDeath != null);
                 msgOut.WriteBoolean(data.CharacterInfo?.PermanentlyDead ?? false);
             }
             msgOut.WriteInt32(GetActiveSlot(client));
@@ -230,7 +241,12 @@ namespace WITG
             }
         }
 
-        public static void Dispose() => ClientActiveSlots.Clear();
+        public static void Dispose()
+        {
+            GameMain.LuaCs.Networking.Remove("WITG_SelSuccess");
+            GameMain.LuaCs.Networking.Remove("WITG_DeleteSlot");
+            ClientActiveSlots.Clear();
+        }
     }
 
     // MARK: Harmony Patches

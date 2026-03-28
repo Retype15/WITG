@@ -17,11 +17,12 @@ namespace WITG
         public static GUIFrame? MainPanel { get; set; }
         private static GUIListBox? ListBox;
         private static GUIButton? TabButton;
+
         public static GUIFrame? FloatingPanel { get; private set; }
         private static GUIListBox? FloatingListBox;
-
         private static GUIButton? ActionButton;
         private static int SelectedUISlot = -1;
+        private static bool IsDataStale = true;
 
         public static void Initialize(NetLobbyScreen lobby)
         {
@@ -29,7 +30,6 @@ namespace WITG
 
             var chatBoxField = typeof(NetLobbyScreen).GetField("chatBox", BindingFlags.NonPublic | BindingFlags.Instance);
             var chatBox = chatBoxField?.GetValue(lobby) as GUIListBox;
-
             var container = chatBox?.Parent?.Parent?.Parent;
 
             if (container == null)
@@ -39,7 +39,6 @@ namespace WITG
             }
 
             MainPanel = new GUIFrame(new RectTransform(Vector2.One, container.RectTransform, Anchor.Center), style: "InnerFrame") { Visible = false };
-
             var layout = new GUILayoutGroup(new RectTransform(new Vector2(0.95f, 0.95f), MainPanel.RectTransform, Anchor.Center))
             {
                 Stretch = true,
@@ -47,7 +46,6 @@ namespace WITG
             };
 
             var header = new GUIFrame(new RectTransform(new Vector2(1f, 0.12f), layout.RectTransform), style: "GUISlopedHeader") { Color = Color.Gold * 0.6f };
-
             _ = new GUITextBlock(new RectTransform(Vector2.One, header.RectTransform), TextSOS.Get("witg.crewmanifest", "CREW MANIFEST"), font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
 
             ListBox = new GUIListBox(new RectTransform(new Vector2(1f, 0.88f), layout.RectTransform), style: "GUIListBox") { Spacing = GUI.IntScale(4) };
@@ -56,7 +54,10 @@ namespace WITG
             {
                 OnClicked = (btn, _) =>
                 {
+                    IsDataStale = true;
+                    Refresh();
                     IdentityNetworking.RequestInfo();
+
                     foreach (var child in container.Children)
                     {
                         child.Visible = (child == MainPanel);
@@ -73,6 +74,17 @@ namespace WITG
             var allTabs = allTabsField?.GetValue(lobby) as List<GUIButton>;
             allTabs?.Add(TabButton);
 
+            allTabs?.ForEach(t =>
+            {
+                if (t == TabButton) return;
+                var oldOnClicked = t.OnClicked;
+                t.OnClicked = (b, u) =>
+                {
+                    if (MainPanel != null) MainPanel.Visible = false;
+                    return oldOnClicked?.Invoke(b, u) ?? true;
+                };
+            });
+
             if (lobby.LogButtons.CountChildren > 0)
             {
                 float share = 1.0f / lobby.LogButtons.CountChildren;
@@ -82,18 +94,24 @@ namespace WITG
 
         public static void Refresh()
         {
+            IsDataStale = false;
             PopulateList(ListBox);
             PopulateList(FloatingListBox);
-            if (FloatingPanel != null && SelectedUISlot != -1)
-            {
-                UpdateActionButton();
-            }
+            UpdateActionButton();
         }
 
         private static void PopulateList(GUIListBox? targetList)
         {
             if (targetList == null) return;
+            targetList.Deselect();
             targetList.Content.ClearChildren();
+
+            if (IsDataStale)
+            {
+                _ = new GUITextBlock(new RectTransform(new Vector2(1f, 0.2f), targetList.Content.RectTransform),
+                    TextManager.Get("Loading") ?? "Loading...", font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
+                return;
+            }
 
             for (int i = 0; i < 4; i++)
             {
@@ -101,21 +119,23 @@ namespace WITG
                 bool isActive = i == IdentityData.ActiveSlot;
                 bool hasData = IdentityData.Cache.TryGetValue(slotIndex, out var data);
 
-                var row = new GUIButton(new RectTransform(new Point(targetList.Content.Rect.Width, GUI.IntScale(65)), targetList.Content.RectTransform), style: "ListBoxElement")
+                var row = new GUIButton(new RectTransform(new Vector2(1f, 0.15f), targetList.Content.RectTransform), style: "ListBoxElement")
                 {
                     UserData = slotIndex,
                     Color = isActive ? Color.Gold * 0.15f : Color.Black * 0.3f,
                     OnClicked = (btn, obj) =>
                     {
-                        targetList.Select(slotIndex);
                         SelectedUISlot = slotIndex;
 
-                        if (targetList == ListBox && !isActive)
-                            IdentityNetworking.SelectSlot(slotIndex);
-
-                        if (targetList == FloatingListBox)
+                        if (targetList == ListBox)
+                        {
+                            if (!isActive) IdentityNetworking.SelectSlot(slotIndex);
+                        }
+                        else
+                        {
+                            targetList.Select(slotIndex);
                             UpdateActionButton();
-
+                        }
                         return true;
                     },
                     OnSecondaryClicked = (btn, obj) =>
@@ -127,21 +147,21 @@ namespace WITG
                             return false;
                         }
                         var options = new ContextMenuOption[] {
-                        new(TextManager.Get("Delete"), isEnabled: true, onSelected: () =>
-                        {
-                            var confirm = new GUIMessageBox(TextSOS.Get("witg.deleteidentity", "DELETE IDENTITY"),
-                                TextSOS.Get("witg.confirmdeleteidentity", "Are you sure you want to delete [name]?").Replace("[name]", data.Name),
-                                [TextManager.Get("Yes"), TextManager.Get("No")]);
+                            new(TextManager.Get("Delete"), isEnabled: true, onSelected: () =>
+                            {
+                                var confirm = new GUIMessageBox(TextSOS.Get("witg.deleteidentity", "DELETE IDENTITY"),
+                                    TextSOS.Get("witg.confirmdeleteidentity", "Are you sure you want to delete [name]?").Replace("[name]", data.Name),
+                                    [TextManager.Get("Yes"), TextManager.Get("No")]);
 
-                            confirm.Buttons[0].OnClicked = (b, u) => {
-                                IdentityData.Cache.Remove(slotIndex);
-                                Refresh();
-                                IdentityNetworking.SendDeleteSlot(slotIndex);
-                                confirm.Close();
-                                return true;
-                            };
-                            confirm.Buttons[1].OnClicked = confirm.Close;
-                        })
+                                confirm.Buttons[0].OnClicked = (b, u) => {
+                                    IdentityData.Cache.Remove(slotIndex);
+                                    IdentityNetworking.SendDeleteSlot(slotIndex);
+                                    confirm.Close();
+                                    Refresh();
+                                    return true;
+                                };
+                                confirm.Buttons[1].OnClicked = confirm.Close;
+                            })
                         };
                         GUIContextMenu.CreateContextMenu(null, data.Name, Color.Red, options);
                         return true;
@@ -158,11 +178,28 @@ namespace WITG
 
                     var info = new GUILayoutGroup(new RectTransform(new Vector2(0.6f, 1f), h.RectTransform)) { Stretch = true, CanBeFocused = false };
 
-                    Color nameColor = data.IsDead ? GUIStyle.Red : Color.White;
-                    string displayName = data.IsDead ? $"[DEAD] {data.Name}" : data.Name;
+                    Color nameColor;
+                    string displayName = "";
+
+                    if (data.IsPermanentlyDead)
+                    {
+                        nameColor = GUIStyle.Red;
+                        displayName = $"{data.Name} - [{TextSOS.Get("witg.dead", "DEAD")}]";
+                    }
+                    else if (data.IsWounded)
+                    {
+                        nameColor = GUIStyle.Orange;
+                        displayName = $"{data.Name} - [{TextSOS.Get("witg.wounded", "WOUNDED")}]";
+                    }
+                    else
+                    {
+                        nameColor = Color.White;
+                        displayName = data.Name;
+                    }
 
                     _ = new GUITextBlock(new RectTransform(new Vector2(1f, 0.5f), info.RectTransform), displayName, font: GUIStyle.SubHeadingFont, textColor: nameColor) { AutoScaleHorizontal = true, CanBeFocused = false };
-                    _ = new GUITextBlock(new RectTransform(new Vector2(1f, 0.5f), info.RectTransform), data.Job.ToUpper(), font: GUIStyle.SmallFont, textColor: job?.UIColor ?? Color.LightBlue) { CanBeFocused = false };
+
+                    _ = new GUITextBlock(new RectTransform(new Vector2(1f, 0.5f), info.RectTransform), (data.Job ?? "").ToUpper(), font: GUIStyle.SmallFont, textColor: job?.UIColor ?? Color.LightBlue) { CanBeFocused = false };
 
                     if (isActive) _ = new GUITextBlock(new RectTransform(new Vector2(0.25f, 1f), h.RectTransform), TextManager.Get("Active"), textColor: Color.Gold, textAlignment: Alignment.CenterRight, font: GUIStyle.SmallFont) { CanBeFocused = false };
                 }
@@ -214,20 +251,11 @@ namespace WITG
 
             var header = new GUIFrame(new RectTransform(new Vector2(1f, 0.1f), layout.RectTransform), style: "GUISlopedHeader") { Color = Color.Gold * 0.6f };
             _ = new GUITextBlock(new RectTransform(new Vector2(0.8f, 1f), header.RectTransform, Anchor.CenterLeft), TextSOS.Get("witg.crewmanifest", "CREW MANIFEST"), font: GUIStyle.SubHeadingFont, textAlignment: Alignment.Center);
-            _ = new GUIButton(new RectTransform(new Vector2(0.15f, 0.8f), header.RectTransform, Anchor.CenterRight), "X", style: "GUIButtonSmall") { OnClicked = (_, _) => { ToggleFloatingPanel(); return true; } };
+            _ = new GUIButton(new RectTransform(new Vector2(0.05f, 0.8f), header.RectTransform, Anchor.CenterRight), style: "GUICancelButton") { OnClicked = (_, _) => { ToggleFloatingPanel(); return true; } };
 
             FloatingListBox = new GUIListBox(new RectTransform(new Vector2(1f, 0.75f), layout.RectTransform), style: "GUIListBox")
             {
-                Spacing = GUI.IntScale(4),
-                OnSelected = (comp, userdata) =>
-                {
-                    if (userdata is int slotIndex)
-                    {
-                        SelectedUISlot = slotIndex;
-                        UpdateActionButton();
-                    }
-                    return true;
-                }
+                Spacing = GUI.IntScale(4)
             };
 
             var btnContainer = new GUIFrame(new RectTransform(new Vector2(1f, 0.12f), layout.RectTransform), style: null);
@@ -238,15 +266,13 @@ namespace WITG
                 OnClicked = (btn, obj) =>
                 {
                     if (SelectedUISlot != -1)
-                    {
                         IdentityNetworking.SelectSlot(SelectedUISlot);
-                        ToggleFloatingPanel();
-                    }
                     return true;
                 }
             };
 
             GUIMessageBox.MessageBoxes.Add(panelHolder);
+            IsDataStale = true;
             Refresh();
             IdentityNetworking.RequestInfo();
         }

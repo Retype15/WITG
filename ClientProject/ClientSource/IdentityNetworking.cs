@@ -41,7 +41,8 @@ namespace WITG
                     Slot = msgIn.ReadInt32(),
                     Name = msgIn.ReadString(),
                     Job = msgIn.ReadString(),
-                    IsDead = msgIn.ReadBoolean()
+                    IsWounded = msgIn.ReadBoolean(),
+                    IsPermanentlyDead = msgIn.ReadBoolean()
                 });
             }
             int activeSlot = msgIn.ReadInt32();
