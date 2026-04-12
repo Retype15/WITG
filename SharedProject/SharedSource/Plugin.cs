@@ -10,6 +10,7 @@ using HarmonyLib;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Barotrauma.LuaCs;
 
 [assembly: IgnoresAccessChecksTo("Barotrauma")]
 [assembly: IgnoresAccessChecksTo("DedicatedServer")]
