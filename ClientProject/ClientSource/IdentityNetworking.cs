@@ -17,20 +17,23 @@ namespace WITG
         {
             if (GameMain.GameSession?.GameMode is not MultiPlayerCampaign) return;
             WITGLogger.Log("[WITG] Network: Requesting identity info from server.");
-            GameMain.LuaCs.Networking.Send(GameMain.LuaCs.Networking.Start("WITG_ReqInfo"), DeliveryMethod.Reliable);
+
+            var net = LuaCsSetup.Instance.NetworkingService;
+            net.SendToServer(net.Start("WITG_ReqInfo"), DeliveryMethod.Reliable);
         }
 
         public static void SelectSlot(int slot)
         {
             WITGLogger.Log($"[WITG] Network: Sending slot selection request (Slot {slot}).");
-            var msg = GameMain.LuaCs.Networking.Start("WITG_SelSlot");
+
+            var net = LuaCsSetup.Instance.NetworkingService;
+            var msg = net.Start("WITG_SelSlot");
             msg.WriteInt32(slot);
-            GameMain.LuaCs.Networking.Send(msg, DeliveryMethod.Reliable);
+            net.SendToServer(msg, DeliveryMethod.Reliable);
         }
 
-        public static void OnReceiveInfo(object[] args)
+        public static void OnReceiveInfo(IReadMessage msgIn)
         {
-            var msgIn = (IReadMessage)args[0];
             int count = msgIn.ReadInt32();
 
             WITGLogger.Log($"[WITG] Network: Received {count} character(s) from server.");
@@ -58,9 +61,11 @@ namespace WITG
         public static void SendDeleteSlot(int slot)
         {
             WITGLogger.Log($"[WITG] Network: Sending delete request for slot {slot}.");
-            var msg = GameMain.LuaCs.Networking.Start("WITG_DeleteSlot");
+
+            var net = LuaCsSetup.Instance.NetworkingService;
+            var msg = net.Start("WITG_DeleteSlot");
             msg.WriteInt32(slot);
-            GameMain.LuaCs.Networking.Send(msg, DeliveryMethod.Reliable);
+            net.SendToServer(msg, DeliveryMethod.Reliable);
         }
     }
 }

@@ -38,17 +38,15 @@ namespace WITG
         {
             WITGLogger.Log("[WITG-Server] Initializing server-side slot management.");
 
-            GameMain.LuaCs.Networking.Receive("WITG_ReqInfo", args =>
+            var net = LuaCsSetup.Instance.NetworkingService;
+
+            net.Receive("WITG_ReqInfo", (IReadMessage message, Client client) =>
             {
                 WITGLogger.Log("[WITG-Server] Received request for info.");
 
-                var client = (Client)args[1];
-
                 if (client == null || client.Connection == null || GameMain.GameSession?.GameMode is not MultiPlayerCampaign campaign) return;
 
-                //var msgIn = (IReadMessage)args[0];
-
-                var msgOut = GameMain.LuaCs.Networking.Start("WITG_InfoRes");
+                var msgOut = net.Start("WITG_InfoRes");
 
                 var allData = campaign.characterData.Where(cd =>
                     cd.AccountId.TryUnwrap(out var accId) &&
@@ -68,15 +66,13 @@ namespace WITG
                     msgOut.WriteBoolean(data.CharacterInfo?.PermanentlyDead ?? false); // IsPermanentlyDead
                 }
                 msgOut.WriteInt32(GetActiveSlot(client)); // ActiveSlot
-                GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
+                net.SendToClient(msgOut, client.Connection, DeliveryMethod.Reliable);
             });
 
-            GameMain.LuaCs.Networking.Receive("WITG_SelSlot", args =>
+            net.Receive("WITG_SelSlot", (IReadMessage msgIn, Client client) =>
             {
                 WITGLogger.Log("[WITG-Server] Received request to select slot.");
 
-                var msgIn = (IReadMessage)args[0];
-                var client = (Client)args[1];
                 if (client == null || GameMain.GameSession?.GameMode is not MultiPlayerCampaign campaign) return;
 
                 if (GameMain.GameSession?.IsRunning == true && client.Character != null && !client.Character.IsDead) return;
@@ -122,7 +118,7 @@ namespace WITG
 
                 campaign.IncrementLastUpdateIdForFlag(MultiPlayerCampaign.NetFlags.CharacterInfo);
 
-                var msgOut = GameMain.LuaCs.Networking.Start("WITG_SelSuccess");
+                var msgOut = net.Start("WITG_SelSuccess");
                 msgOut.WriteInt32(targetSlot);
 
                 var finalData = campaign.characterData.Find(cd =>
@@ -131,18 +127,16 @@ namespace WITG
                 msgOut.WriteBoolean(finalData != null);
                 finalData?.CharacterInfo.ServerWrite(msgOut);
 
-                GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
+                net.SendToClient(msgOut, client.Connection, DeliveryMethod.Reliable);
                 //WITGServer.SyncClientRoster(client);
 
                 WITGLogger.Log($"[WITG-Server] Client {client.Name} selected slot {targetSlot}.");
             });
 
-            GameMain.LuaCs.Networking.Receive("WITG_DeleteSlot", args =>
+            net.Receive("WITG_DeleteSlot", (IReadMessage msgIn, Client client) =>
             {
                 WITGLogger.Log("[WITG-Server] Received request to delete slot.");
 
-                var msgIn = (IReadMessage)args[0];
-                var client = (Client)args[1];
                 if (client == null || GameMain.GameSession?.GameMode is not MultiPlayerCampaign campaign) return;
 
                 int slotToDelete = msgIn.ReadInt32();
@@ -185,7 +179,7 @@ namespace WITG
                         if (primaryData != null) client.CharacterInfo = primaryData.CharacterInfo;
                     }
 
-                    var msgOut = GameMain.LuaCs.Networking.Start("WITG_InfoRes");
+                    var msgOut = net.Start("WITG_InfoRes");
                     var myChars = campaign.characterData.Where(cd => cd.AccountId.TryUnwrap(out var id) && client.AccountId.TryUnwrap(out var cid) && id == cid).ToList();
                     msgOut.WriteInt32(myChars.Count);
                     foreach (var cd in myChars)
@@ -197,7 +191,7 @@ namespace WITG
                         msgOut.WriteBoolean(cd.CharacterInfo?.PermanentlyDead ?? false);
                     }
                     msgOut.WriteInt32(WITGServer.GetActiveSlot(client));
-                    GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
+                    net.SendToClient(msgOut, client.Connection, DeliveryMethod.Reliable);
                 }
             });
 
@@ -208,7 +202,8 @@ namespace WITG
         {
             if (client == null || GameMain.GameSession?.GameMode is not MultiPlayerCampaign campaign) return;
 
-            var msgOut = GameMain.LuaCs.Networking.Start("WITG_InfoRes");
+            var net = LuaCsSetup.Instance.NetworkingService;
+            var msgOut = net.Start("WITG_InfoRes");
             var allData = campaign.characterData.Where(cd =>
                 cd.AccountId.TryUnwrap(out var accId) &&
                 client.AccountId.TryUnwrap(out var clientId) &&
@@ -224,7 +219,7 @@ namespace WITG
                 msgOut.WriteBoolean(data.CharacterInfo?.PermanentlyDead ?? false);
             }
             msgOut.WriteInt32(GetActiveSlot(client));
-            GameMain.LuaCs.Networking.Send(msgOut, client.Connection);
+            net.SendToClient(msgOut, client.Connection, DeliveryMethod.Reliable);
         }
 
         public static IEnumerable<CharacterCampaignData> DeserializeAlts(string data)
@@ -242,8 +237,6 @@ namespace WITG
 
         public static void Dispose()
         {
-            GameMain.LuaCs.Networking.Remove("WITG_SelSuccess");
-            GameMain.LuaCs.Networking.Remove("WITG_DeleteSlot");
             ClientActiveSlots.Clear();
         }
     }

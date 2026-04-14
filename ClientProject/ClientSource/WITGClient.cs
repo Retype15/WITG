@@ -18,15 +18,16 @@ namespace WITG
     {
         public static void Initialize()
         {
-            GameMain.LuaCs.Networking.Receive("WITG_InfoRes", args =>
+            var net = LuaCsSetup.Instance.NetworkingService;
+
+            net.Receive("WITG_InfoRes", message =>
             {
                 WITGLogger.Log("[WITG] Client: Received info update message.");
-                IdentityNetworking.OnReceiveInfo(args);
+                IdentityNetworking.OnReceiveInfo(message);
             });
 
-            GameMain.LuaCs.Networking.Receive("WITG_SelSuccess", args =>
+            net.Receive("WITG_SelSuccess", msgIn =>
             {
-                var msgIn = (IReadMessage)args[0];
                 int slot = msgIn.ReadInt32();
                 bool hasChar = msgIn.ReadBoolean();
 
@@ -83,8 +84,7 @@ namespace WITG
 
         public static void Dispose()
         {
-            GameMain.LuaCs.Networking.Remove("WITG_InfoRes");
-            GameMain.LuaCs.Networking.Remove("WITG_SelSuccess");
+            // AA Not needs now.
         }
     }
 
@@ -129,7 +129,7 @@ namespace WITG
             var identityBtnContainer = new GUILayoutGroup(new RectTransform(new Vector2(0.3f, 1.0f),
                 decisionContainer.RectTransform));
 
-            _ = new GUIButton(new RectTransform(Vector2.One, identityBtnContainer.RectTransform), TextSOS.Get("witg.changeidentity", "CHANGE IDENTITY"), style: "GUIButton")
+            var identityButton = new GUIButton(new RectTransform(Vector2.One, identityBtnContainer.RectTransform), TextSOS.Get("witg.changeidentity", "CHANGE IDENTITY"), style: "GUIButton")
             {
                 OnClicked = (b, userdata) =>
                 {
@@ -139,6 +139,8 @@ namespace WITG
                     return true;
                 }
             };
+
+            identityButton.FadeIn(wait: 5.0f, duration: 0.5f);
 
             float share = 1.0f / decisionContainer.CountChildren;
             foreach (var child in decisionContainer.Children)
